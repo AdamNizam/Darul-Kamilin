@@ -40,6 +40,10 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        'user_logs' => [
+            'driver' => 'session',
+            'provider' => 'user_logs',
+        ],
     ],
 
     /*
@@ -64,7 +68,10 @@ return [
             'driver' => 'eloquent',
             'model' => App\Models\User::class,
         ],
-
+        'user_logs' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\UserLog::class,
+        ],
         // 'users' => [
         //     'driver' => 'database',
         //     'table' => 'users',

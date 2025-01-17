@@ -39,5 +39,10 @@ class TunggakanSantri extends Model
         return $this->belongsTo(KategoriTunggakan::class, 'kategori_tunggakan_id');
     }
 
+    public function pembayaran()  {
+
+        return $this->hasMany(Pembayaran::class);
+
+    }
 
 }

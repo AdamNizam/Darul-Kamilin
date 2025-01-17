@@ -5,18 +5,16 @@ namespace App\Filament\Resources;
 use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
-use Filament\Facades\Filament;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Blade;
 use App\Models\TunggakanSantri;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Wizard;
 use Filament\Forms\Components\Tabs\Tab;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
-use Filament\Tables\Columns\SelectColumn;
 use App\Filament\Resources\TunggakanResource\Pages;
-use Filament\Forms\Components\Checkbox;
 use Filament\Tables\Columns\CheckboxColumn;
 
 class TunggakanResource extends Resource
@@ -37,10 +35,15 @@ class TunggakanResource extends Resource
                 ->tabs([
                     Tab::make('Santri & Tunggakan')
                     ->Schema([
+
                         Select::make('santri_id')
-                        ->label('Santri')
+                        ->label('Santri dan Nama Ayah')
                         ->relationship('santri', 'nama')
+                        ->getOptionLabelFromRecordUsing(function ($record) {
+                            return 'Nama Santri '. $record->nama . ' - ' . ($record->waliSantri ? $record->waliSantri->nama_ayah : 'Nama Ayah Tidak Tersedia');
+                        })
                         ->required(),
+
 
                         Select::make('kategori_tunggakan_id')
                         ->label('Kategori Tunggakan')
@@ -278,6 +281,16 @@ class TunggakanResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\BulkAction::make('Export PDF')
+                        ->icon('heroicon-c-document-arrow-down')
+                        ->deselectRecordsAfterCompletion()
+                        ->action(function (Collection $records) {
+                            return response()->streamDownload(function () use ($records) {
+                                echo Pdf::loadHTML(
+                                    Blade::render('pdf.tunggakan', ['records' => $records])
+                                )->stream();
+                            }, 'tunggakan.pdf');
+                        }),
                 ]),
             ]);
     }

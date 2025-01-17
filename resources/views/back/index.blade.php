@@ -7,9 +7,9 @@
     <meta name="description" content="viho admin is super flexible, powerful, clean &amp; modern responsive bootstrap 4 admin template with unlimited possibilities.">
     <meta name="keywords" content="admin template, viho admin template, dashboard template, flat admin template, responsive admin template, web app">
     <meta name="author" content="pixelstrap">
-    <link rel="icon" href="{{ asset('back/assets/images/favicon.png') }}" type="image/x-icon">
-    <link rel="shortcut icon" href="{{ asset('back/assets/images/favicon.png') }}" type="image/x-icon">
-    <title>viho - Premium Admin Template</title>
+    <link rel="icon" href="{{ Storage::url( $data->logo ) }}" type="image/x-icon">
+    <link rel="shortcut icon" href="{{ Storage::url( $data->logo ) }}" type="image/x-icon">
+    <title>{{ $data->nama_yayasan}}</title>
     <!-- Google font-->
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&amp;display=swap" rel="stylesheet">
@@ -51,8 +51,8 @@
       <div class="page-main-header">
         <div class="main-header-right row m-0">
           <div class="main-header-left">
-            <div class="logo-wrapper"><a href="index.html"><img class="img-fluid" src="{{ asset('back/assets/images/logo/logo.png') }}" alt=""></a></div>
-            <div class="dark-logo-wrapper"><a href="index.html"><img class="img-fluid" src="{{ asset('back/assets/images/logo/dark-logo.png') }}" alt=""></a></div>
+            <div class="logo-wrapper"><a href="index.html"><img class="img-fluid" src="{{ Storage::url( $data->logo ) }}" width="30px" alt=""></a></div>
+            <div class="dark-logo-wrapper"><a href="index.html"><img class="img-fluid" src="{{ Storage::url( $data->logo ) }}" width="30px" alt=""></a></div>
             <div class="toggle-sidebar"><i class="status_toggle middle" data-feather="align-center" id="sidebar-toggle"></i></div>
           </div>
           <div class="left-menu-header col">
@@ -101,9 +101,15 @@
         <div class="page-body">
           <!-- Container-fluid starts-->
           @if (session('success'))
-            <div class="alert alert-success outline alert-dismissible fade show" role="alert">
-                <p><b> Berhasil! </b>{{ session('success') }}</p>
-                <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close" data-bs-original-title="" title=""></button>
+          <div class="alert alert-primary alert-dismissible fade show" role="alert">
+            <strong>Berhasil! </strong> {{ session('success')}}
+            <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close" data-bs-original-title="" title=""></button>
+          </div>
+          @endif
+
+          @if (session('warning'))
+            <div class="alert alert-warning outline-2x" role="alert">
+                <p>{{ session ('warning')}}</p>
             </div>
           @endif
 
@@ -112,29 +118,40 @@
                 <div class="email-wrap bookmark-wrap">
                 <div class="row">
                     <div class="col-xl-3 box-col-4 xl-30">
-                    <div class="email-sidebar"><a class="btn btn-primary email-aside-toggle" href="javascript:void(0)">Bayar Tagihan Bulanan: {{ $s->nama}}</a>
+                    <div class="email-sidebar">
+                        <a class="btn btn-primary email-aside-toggle" href="javascript:void(0)">Bayar Tagihan Bulanan: {{ $s->nama}}</a>
                         <div class="email-left-aside">
                         <div class="card">
                             <div class="card-body">
                             <div class="email-app-sidebar left-bookmark">
                                 <div class="media">
-                                <div class="media-size-email"><img class="me-3 rounded-circle" src="{{ asset('back/assets/images/user/user.png') }}" alt=""></div>
+                                <div class="media-size-email">
+                                    @if ( $s->jenis_kelamin == 'Laki-laki')
+                                        <img class="me-3"
+                                        src="{{ $s->gambar ? Storage::url($s->gambar) : asset('logo/man.png') }} "
+                                        alt="User Image"
+                                        width="70px" width="70px">
+                                    @else
+                                        <img class="me-3"
+                                        src="{{ $s->gambar ? Storage::url($s->gambar) : asset('logo/human.png') }} "
+                                        alt="User Image"
+                                        width="70px" width="70px">
+                                    @endif
+                                </div>
                                 <div class="media-body">
                                     <h6 class="f-w-600">
                                         Nama: {{ $s->nama}}
                                     </h6>
-                                        @foreach($s->tunggakan as $tunggakan)
-                                            <p>ID Tunggakan: {{ $tunggakan->id }}</p> <!-- Menampilkan ID tunggakan -->
-                                            <p>Kategori Tunggakan: {{ $tunggakan->kategoriTunggakan->nama }}</p> <!-- Menampilkan kategori tunggakan -->
-                                        @endforeach
-                                    <p>Alamat: {{ $s->alamat}}</p>
                                     <p>Tingkat: {{ $s->tingkat_pendidikan}}</p>
+                                    <p>Alamat: {{ $s->alamat}}</p>
+                                    <p>Jk: {{ $s->jenis_kelamin}}</p>
+                                    <p>Tgl: {{ $s->tempat_tgl}}</p>
                                 </div>
                                 </div>
                                 <ul class="nav main-menu" role="tablist">
                                 <li class="nav-item">
-                                    <button class="badge-light btn-block btn-mail" type="button" data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="me-2" data-feather="check-circle"></i>Bayar Sekarang </button>
-                                    <div class="modal fade modal-bookmark" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <button class="badge-light btn-block btn-mail" type="button" data-bs-toggle="modal" data-bs-target="#exampleModal{{$s->id}}"><i class="me-2" data-feather="check-circle"></i>Bayar Sekarang </button>
+                                    <div class="modal fade modal-bookmark" id="exampleModal{{$s->id}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel{{$s->id}}" aria-hidden="true">
                                     <div class="modal-dialog modal-lg" role="document">
                                         <div class="modal-content">
                                         <div class="modal-header">
@@ -149,34 +166,17 @@
                                                     <div class="row">
                                                         <div class="form-group col-md-12">
                                                             <label>Silahkan Lakukan Pembayaran / Transfer ke Salah Satu Payment Dibawah</label>
-
-                                                            <div class="card p-3 mb-2">
-                                                                <div class="d-flex align-items-center">
-                                                                    <img src="{{ asset('back/assets/images/logo/bank-bni.svg') }}" alt="Bank Icon" class="me-3" style="width: 48px; height: 48px;">
-                                                                    <div>
-                                                                        <span style="font-size: 1.25rem;">1234567890</span>
-                                                                        <p class="mb-0">Nama Nasabah: John Doe</p>
+                                                            @foreach ($payment as $p )
+                                                                <div class="card p-3 mb-2">
+                                                                    <div class="d-flex align-items-center">
+                                                                        <img src="{{ asset('back/assets/images/logo/'. $p->logo.'.svg') }}" alt="Bank Icon" class="me-3" style="width: 48px; height: 48px;">
+                                                                        <div>
+                                                                            <span style="font-size: 1.25rem;">No. {{ $p->no_rek }}</span>
+                                                                            <p class="mb-0">Nama: {{ $p->nama_nasabah}}</p>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
-                                                            </div>
-                                                            <div class="card p-3 mb-2">
-                                                                <div class="d-flex align-items-center">
-                                                                    <img src="{{ asset('back/assets/images/logo/bank-mandiri 1.svg') }}" alt="Bank Icon" class="me-3" style="width: 48px; height: 48px;">
-                                                                    <div>
-                                                                        <span style="font-size: 1.25rem;">1234567890</span>
-                                                                        <p class="mb-0">Nama Nasabah: John Doe</p>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="card p-3 mb-2">
-                                                                <div class="d-flex align-items-center">
-                                                                    <img src="{{ asset('back/assets/images/logo/Dana.svg') }}" alt="Bank Icon" class="me-3" style="width: 48px; height: 48px;">
-                                                                    <div>
-                                                                        <span style="font-size: 1.25rem;">1234567890</span>
-                                                                        <p class="mb-0">Nama Nasabah: John Doe</p>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
+                                                            @endforeach
                                                         </div>
                                                     </div>
 
@@ -196,7 +196,7 @@
 
                                                     <div class="row">
                                                     <div class="form-group col">
-                                                        <label>Pilih Tunggakan Yang Ingin DIbayar</label>
+                                                        <label>Pilih Nama Santri Yang Ingin DIbayar</label>
                                                         <select  name="tunggakan_santri_id" class="js-example-basic-single" id="bm-group">
                                                           @foreach($santri as $idtg)
                                                                 @foreach($idtg->tunggakan as $tunggakan)  <!-- looping untuk menampilkan setiap tunggakan -->
@@ -243,7 +243,7 @@
                                     <hr>
                                 </li>
                                 <li><span class="main-title">Transaksi</li>
-                                <li><a class="show" id="pills-notification-tab" data-bs-toggle="pill" href="#pills-notification" role="tab" aria-controls="pills-notification" aria-selected="false"><span class="title">Status Transaksi</span></a></li>
+                                <li><a class="show" id="pills-notification-tab" data-bs-toggle="pill" href="#pills-notification{{$s->id}}" role="tab" aria-controls="pills-notification" aria-selected="false"><span class="title">Status Transaksi</span></a></li>
                                 </ul>
                             </div>
                             </div>
@@ -647,13 +647,50 @@
                                 </div>
                             </div>
 
-                            <div class="fade tab-pane" id="pills-notification" role="tabpanel" aria-labelledby="pills-notification-tab">
+                            <div class="fade tab-pane" id="pills-notification{{$s->id}}" role="tabpanel" aria-labelledby="pills-notification-tab">
                                 <div class="card mb-0">
                                 <div class="card-header d-flex">
-                                    <h6 class="mb-0">Notification</h6><a href="javascript:void(0)"><i class="me-2" data-feather="printer"></i>Print</a>
+                                    <h6 class="mb-0">Status Transaksi</h6><a href="javascript:void(0)"><i class="me-2" data-feather="printer"></i>Print</a>
                                 </div>
                                 <div class="card-body">
-                                    <div class="details-bookmark text-center"><span>No tasks found.</span></div>
+                                    <table class="table table-bordered table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th></th>
+                                                <th class="text-center">Metode</th>
+                                                <th class="text-center">Tanggal</th>
+                                                <th class="text-center">Bukti Transfer</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                                @foreach ($s->tunggakan as $tunggakan)
+                                                    @foreach ($tunggakan->pembayaran as $pembayaran)
+                                                        <tr>
+                                                            <!-- Menampilkan status pembayaran -->
+                                                            <th class="text-nowrap" scope="row">
+                                                                @if ($pembayaran->status == 1)
+                                                                    <span class="badge bg-light text-success">Berhasil</span>
+                                                                @elseif ($pembayaran->status == 2)
+                                                                    <span class="badge bg-light text-danger">Gagal</span>
+                                                                @else
+                                                                    <span class="badge bg-light text-warning">Proses</span>
+                                                                @endif
+                                                            </th>
+                                                            <!-- Menampilkan metode pembayaran -->
+                                                            <td class="text-center">{{ $pembayaran->metode_pembayaran }}</td>
+                                                            <!-- Menampilkan tanggal pembayaran -->
+                                                            <td class="text-center">{{ \Carbon\Carbon::parse($pembayaran->tanggal_pembayaran)->format('d M Y') }}</td>
+                                                            <!-- Menampilkan bukti pembayaran -->
+                                                            <td class="text-center">
+                                                                <a href="{{ asset('storage/' . $pembayaran->bukti_pembayaran) }}" target="_blank">
+                                                                    Lihat
+                                                                </a>
+                                                            </td>
+                                                        </tr>
+                                                    @endforeach
+                                                @endforeach
+                                        </tbody>
+                                    </table>
                                 </div>
                                 </div>
                             </div>
@@ -673,11 +710,8 @@
         <footer class="footer">
           <div class="container-fluid">
             <div class="row">
-              <div class="col-md-6 footer-copyright">
-                <p class="mb-0">Copyright 2021-22 © viho All rights reserved.</p>
-              </div>
-              <div class="col-md-6">
-                <p class="pull-right mb-0">Hand crafted & made with <i class="fa fa-heart font-secondary"></i></p>
+              <div class="col-md-12 footer-copyright">
+                <p class="mb-0">Copyright {{ date('Y') }} © {{$data->nama_yayasan}} All rights reserved.</p>
               </div>
             </div>
           </div>

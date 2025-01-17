@@ -71,6 +71,12 @@
             <li><a href="#hero" class="active">Home<br></a></li>
             <li><a href="#about">Profile</a></li>
             <li>
+              <a href="/admin">
+                <button type="button" class="btn btn-light">
+                    Admin
+                </button>
+              </a>
+            <li>
               <a href="{{ route('signIn')}}">
                 <button type="button" class="btn btn-light">
                     Sign in
@@ -112,13 +118,6 @@
       <div class="icon-boxes position-relative" data-aos="fade-up" data-aos-delay="200">
         <div class="container position-relative">
           <div class="row gy-4 mt-5 justify-content-center">
-
-        <div class="col-xl-3 col-md-6">
-          <div class="icon-box">
-            <div class="icon"><i class="bi bi-badge-sd"></i></div>
-            <h4 class="title"><a href="" class="stretched-link">SD</a></h4>
-          </div>
-        </div><!--End Icon Box -->
 
         <div class="col-xl-3 col-md-6">
           <div class="icon-box">
@@ -260,7 +259,7 @@
   <footer id="footer" class="footer accent-background">
 
     <div class="container copyright text-center mt-4">
-    <p>© <span>Copyright {{ date('Y') }}</span><strong class="px-1 sitename">{{$data->nama_yayasan}}</strong> <span>All Rights Reserved</span></p>
+    <p>© <span>Copyright {{ date('Y') }} © </span><strong class="px-1 sitename">{{$data->nama_yayasan}}</strong> <span>All Rights Reserved</span></p>
     </div>
 
   </footer>

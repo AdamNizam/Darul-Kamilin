@@ -98,9 +98,9 @@ class SantriResource extends Resource
                     ->label('Gambar Santri')
                     ->defaultImageUrl(function ($record) {
                         if ($record->jenis_kelamin == 'Laki-laki') {
-                            return asset('logo/man.png'); // Gambar untuk laki-laki
+                            return asset('logo/man.png');
                         } else {
-                            return asset('logo/human.png'); // Gambar untuk perempuan
+                            return asset('logo/human.png');
                         }
                     }),
 
@@ -119,12 +119,15 @@ class SantriResource extends Resource
                     ->label('Tempat Tgl'),
 
                 Tables\Columns\TextColumn::make('tingkat_pendidikan')
+                    ->searchable()
                     ->label('Tingkat Pendidikan'),
 
                 Tables\Columns\TextColumn::make('waliSantri.nama_ayah')
+                    ->searchable()
                     ->label('Nama Ayah'),
 
                 Tables\Columns\TextColumn::make('waliSantri.nama_ibu')
+                    ->searchable()
                     ->label('Nama Ibu'),
             ])
             ->defaultSort('id', 'desc')

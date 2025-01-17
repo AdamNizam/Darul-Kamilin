@@ -1,7 +1,12 @@
 <?php
 
-use App\Http\Controllers\FrontController;
+use Filament\Tables\Actions\Action;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\MainController;
+use Filament\Notifications\Notification;
+use App\Http\Controllers\FrontController;
+use Filament\Notifications\Events\DatabaseNotificationsSent;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -14,11 +19,19 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', [FrontController::class, 'halamanUtama'])->name('utama');
-Route::get('/login', [FrontController::class, 'signIn'])->name('signIn');
-Route::get('/wali/santri', [FrontController::class, 'waliSantri'])->name('wali');
-Route::post('/auth', [FrontController::class, 'auth'])->name('auth');
-Route::get('/logout', [FrontController::class, 'logout'])->name('logout');
+Route::get('/', [MainController::class, 'viewUtama'])->name('utama');
 
-Route::post('/pembayaran', [FrontController::class, 'pembayaran'])->name('pembayaran');
+Route::post('/auth', [MainController::class, 'authLogin'])->name('auth');
+Route::get('/login', [MainController::class, 'signIn'])->name('signIn');
+
+Route::middleware(['auth.redirect'])->group(function () {
+
+    Route::get('/logout', [MainController::class, 'logout'])->name('logout');
+
+    Route::post('/pembayaran/santri', [MainController::class, 'pembayaran'])->name('pembayaran');
+
+    Route::get('/wali/santri', [MainController::class, 'waliSantri'])->name('wali');
+
+});
+
 

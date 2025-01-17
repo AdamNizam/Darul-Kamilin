@@ -53,14 +53,19 @@
                 @csrf
 
                 @if (session('error'))
-                    <div class="alert alert-danger inverse alert-dismissible fade show" role="alert"><i class="icon-thumb-down"></i>
-                        <p>{{ session('error') }}</p>
-                        <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close" data-bs-original-title="" title=""></button>
+                    <div class="alert alert-danger outline-2x" role="alert">
+                        <p>{{ session('error')}}</p>
+                    </div>
+                @endif
+
+                @if (session('warning'))
+                    <div class="alert alert-secondary outline-2x" role="alert">
+                        <p>{{ session('warning')}}</p>
                     </div>
                 @endif
 
                 <h4 class="text-center">Login</h4>
-                <h6>Silahkan Masukan Username dan Password </h6>
+                <h6 class="text-center">Silahkan Masukan Username dan Password </h6>
                 <div class="form-group">
                   <label>Username</label>
                   <div class="input-group"><span class="input-group-text"><i class="icon-user"></i></span>

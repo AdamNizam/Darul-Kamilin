@@ -2,19 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Payment;
 use App\Models\Santri;
 use App\Models\UserLog;
 use App\Models\Yayasan;
 use App\Models\Pembayaran;
 use App\Models\WaliSantri;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
+use Filament\Notifications\Notification;
 
 
-class FrontController extends Controller
+class MainController extends Controller
 {
-    public function halamanUtama() {
+    public function viewUtama() {
 
         $data = Yayasan::latest()->first();
 
@@ -29,15 +32,8 @@ class FrontController extends Controller
 
     }
 
-    public function logout()
+    public function authLogin(Request $request)
     {
-        Session::forget('id');
-
-        return redirect()->route('utama');
-    }
-
-    public function auth(Request $request) {
-
         $request->validate([
             'username' => 'required|string',
             'password' => 'required|string',
@@ -46,29 +42,45 @@ class FrontController extends Controller
         $user = UserLog::where('username', $request->username)->first();
 
         if ($user && Hash::check($request->password, $user->password)) {
+
+            Auth::guard('user_logs')->login($user);
+
             Session::put('user', [
                 'id' => $user->id,
                 'username' => $user->username,
-                'wali_santri_id' => $user->waliSantri->id,
-                'wali_santri' => $user->waliSantri->nama_ayah,
+                'wali_santri_id' => $user->waliSantri ? $user->waliSantri->id : null,
+                'wali_santri' => $user->waliSantri ? $user->waliSantri->nama_ayah : null,
             ]);
+
             return redirect()->route('wali');
         }
-
         return redirect()->back()->with('error', 'Username atau password salah.');
     }
 
+    public function logout()
+    {
+        Auth::guard('user_logs')->logout();
+
+        Session::forget('user');
+
+        return redirect()->route('utama');
+    }
+
     public function waliSantri() {
+
+        $data = Yayasan::latest()->first();
+
+        $payment = Payment::all();
 
         $santri = Santri::all();
 
         $wali_santri_id = session('user')['wali_santri_id'];
 
         $santri = Santri::where('wali_santri_id', $wali_santri_id)
-        ->with(['tunggakan.kategoriTunggakan'])
+        ->with(['tunggakan.kategoriTunggakan','tunggakan.pembayaran'])
         ->get();
 
-        return view('back.index', compact('santri'));
+        return view('back.index', compact('santri', 'data', 'payment'));
     }
 
     public function pembayaran(Request $request) {
@@ -81,9 +93,13 @@ class FrontController extends Controller
                 'tunggakan_santri_id' => 'required|exists:tunggakan_santris,id',
             ]);
 
+            $namaBulan = $request->bulan;
+
+            $adminSession = session('user')['wali_santri'];
+
             $buktiPembayaran = $request->file('bukti_pembayaran')->store('bukti_pembayaran', 'public');
 
-            $pembayaran = Pembayaran::create([
+           $pembayaran = Pembayaran::create([
                 'tanggal_pembayaran' => now(),
                 'bukti_pembayaran' => $buktiPembayaran,
                 'metode_pembayaran' => 'Transfer',
@@ -93,11 +109,23 @@ class FrontController extends Controller
                 'status' => 0,
             ]);
 
-            return redirect()->route('wali')->with('success', 'Pembayaran berhasil.');
+            $santri = $pembayaran->tunggakanSantri->santri;
+
+            $admin = auth()->user();
+
+            Notification::make()
+                ->title('Notifikasi Pembayaran Tunggakan Santri')
+                ->icon('heroicon-o-document-text')
+                ->body('Pembayaran Tunggakan Bulan <b>' . $namaBulan . '</b> Oleh Wali Santri <b>' . $adminSession . '</b> untuk Santri <b>' . $santri->nama . '</b>')
+                ->iconColor('success')
+                ->sendToDatabase($admin);
+
+
+            return redirect()->route('wali')->with('success', 'Pembayaran Dalam Tahap Pengecekan Oleh Admin.');
 
         } catch (\Exception $e) {
-            // Tangkap dan tampilkan pesan kesalahan
-            dd('Terjadi kesalahan: ' . $e->getMessage());
+
+            return redirect()->route('wali')->with('error', 'Pembayaran gagal.'. $e->getMessage());
         }
     }
 

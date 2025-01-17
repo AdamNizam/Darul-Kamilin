@@ -5,21 +5,16 @@ namespace App\Filament\Resources;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
-use App\Models\Tunggakan;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Blade;
 use App\Models\Pembayaran;
 use Filament\Tables\Table;
-use App\Models\Pemabayaran;
-use Doctrine\DBAL\Schema\Schema;
 use Filament\Resources\Resource;
-use App\Models\KategoriTunggakan;
-use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Tabs\Tab;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\ImageColumn;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\PemabayaranResource\Pages;
 use App\Filament\Resources\PemabayaranResource\RelationManagers;
 
@@ -177,6 +172,16 @@ class PemabayaranResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\BulkAction::make('Export PDF')
+                        ->icon('heroicon-c-document-arrow-down')
+                        ->deselectRecordsAfterCompletion()
+                        ->action(function (Collection $records) {
+                            return response()->streamDownload(function () use ($records) {
+                                echo Pdf::loadHTML(
+                                    Blade::render('pdf.pembayaran', ['records' => $records])
+                                )->stream();
+                            }, 'pembayaran.pdf');
+                        }),
                 ]),
             ]);
     }
